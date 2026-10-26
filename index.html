@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Exclusivo | Directorio de Servicios, Locales y Modelos</title>
+    <!-- Enlace a la hoja de estilos -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- CABECERA -->
+    <header>
+        <div class="logo">PORTAL <span>GOLD</span></div>
+        <p>Directorio Exclusivo de Locales, Servicios y Modelos</p>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="container">
+        
+        <!-- NAVEGACIÓN DE ROLES (Simulación de Acceso) -->
+        <section class="role-selector">
+            <h2>Selecciona tu Vista de Rol</h2>
+            <div class="button-group">
+                <button onclick="switchRole('admin')" class="btn-gold">Vista Admin</button>
+                <button onclick="switchRole('cliente')" class="btn-gold">Vista Cliente</button>
+                <button onclick="switchRole('local')" class="btn-gold">Vista Local (Masajes / Cafés)</button>
+                <button onclick="switchRole('modelo')" class="btn-gold">Vista Modelo (Galería Exclusiva)</button>
+            </div>
+        </section>
+
+        <!-- PANEL 1: ADMIN -->
+        <div id="admin" class="role-section">
+            <h2>Panel de Administración General</h2>
+            <p>Control de membresías, activación de usuarios, locales y modelos, además de moderación global de banners.</p>
+            <div class="card">
+                <h3>Gestión de Cuentas, Modelos y Locales</h3>
+                <table class="admin-table">
+                    <tr>
+                        <th>Nombre / Alias</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                    <tr>
+                        <td>Spa & Masajes Relax</td>
+                        <td>Local</td>
+                        <td><span class="status active">Activo</span></td>
+                        <td><button class="btn-action">Desactivar</button></td>
+                    </tr>
+                    <tr>
+                        <td>Sofía (Modelo VIP)</td>
+                        <td>Modelo</td>
+                        <td><span class="status active">Activo</span></td>
+                        <td><button class="btn-action">Desactivar</button></td>
+                    </tr>
+                    <tr>
+                        <td>Café Tentación</td>
+                        <td>Local</td>
+                        <td><span class="status inactive">Pendiente Pago</span></td>
+                        <td><button class="btn-action">Activar</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL 2: CLIENTE -->
+        <div id="cliente" class="role-section">
+            <h2>Panel de Cliente (Banner Personal)</h2>
+            <p>Sube tu contenido personalizado (Fotos, Videos, Llamada directa y WhatsApp).</p>
+            <div class="card">
+                <div class="form-group">
+                    <label>Subir Multimedia (Fotos / Videos):</label>
+                    <input type="file" multiple accept="image/*,video/*">
+                </div>
+                <div class="form-group">
+                    <label>Enlace de WhatsApp:</label>
+                    <input type="text" placeholder="Ej: +56912345678">
+                </div>
+                <div class="form-group">
+                    <label>Botón de Llamada Directa:</label>
+                    <input type="text" placeholder="Número telefónico de contacto">
+                </div>
+                <button class="btn-gold">Guardar y Publicar Banner</button>
+            </div>
+        </div>
+
+        <!-- PANEL 3: LOCAL -->
+        <div id="local" class="role-section">
+            <h2>Panel de Local / Establecimiento</h2>
+            <p>Administra tus publicaciones y ofrece servicios en galerías categorizadas.</p>
+            <div class="card">
+                <div class="form-group">
+                    <label>Seleccionar Categoría de Servicio:</label>
+                    <select>
+                        <option>Masajes Profesionales</option>
+                        <option>Cafés con Pierna</option>
+                        <option>Atención VIP / Exclusiva</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Gestión de Publicación Propia:</label>
+                    <textarea rows="4" placeholder="Describe los servicios, tarifas y horarios de tu local..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Galería de Imágenes del Local:</label>
+                    <input type="file" multiple accept="image/*">
+                </div>
+                <button class="btn-gold">Actualizar Publicación del Local</button>
+            </div>
+        </div>
+
+        <!-- PANEL 4: MODELO (NUEVO) -->
+        <div id="modelo" class="role-section">
+            <h2>Panel de Modelo (Galería y Banner Personal)</h2>
+            <p>Sube tus fotos, videos y configura tu perfil individual al estilo de portales especializados.</p>
+            <div class="card">
+                <div class="form-group">
+                    <label>Nombre / Alias Artístico:</label>
+                    <input type="text" placeholder="Ej: Camila Rius">
+                </div>
+                <div class="form-group">
+                    <label>Subir Fotos y Videos para la Galería:</label>
+                    <input type="file" multiple accept="image/*,video/*">
+                </div>
+                <div class="form-group">
+                    <label>Tarifas y Descripción del Servicio:</label>
+                    <textarea rows="3" placeholder="Ej: Atención personalizada, masajes de relajación, disponibilidad horaria..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Número de WhatsApp (Contacto Directo):</label>
+                    <input type="text" placeholder="Ej: +56987654321">
+                </div>
+                <button class="btn-gold">Publicar / Actualizar Banner de Modelo</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <p>&copy; 2026 Portal Gold. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Enlace al archivo de lógica JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
