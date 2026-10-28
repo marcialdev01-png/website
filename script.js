@@ -16,6 +16,22 @@ function switchRole(roleId) {
     }
 }
 
+/**
+ * Funciones de simulación de guardado para cada rol
+ * (Muestran un mensaje de éxito al usuario ya que la web está en GitHub Pages de forma estática)
+ */
+function guardarCliente() {
+    alert("¡Éxito! Tu banner personal, fotos y enlaces de contacto han sido guardados correctamente.");
+}
+
+function guardarLocal() {
+    alert("¡Éxito! La publicación, categoría y galería del local han sido actualizadas.");
+}
+
+function guardarModelo() {
+    alert("¡Éxito! Tu galería, tarifas y enlace de WhatsApp se han publicado correctamente.");
+}
+
 // Ejecutar por defecto la vista de cliente al cargar la página de pruebas
 document.addEventListener("DOMContentLoaded", () => {
     switchRole('cliente');
