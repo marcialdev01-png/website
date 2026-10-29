@@ -3,16 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Exclusivo | Directorio de Servicios, Locales y Modelos</title>
+    <title>Portal Dulces&Cariñosas | Directorio Exclusivo de Servicios y Locales</title>
     <!-- Enlace a la hoja de estilos -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- CABECERA -->
+    <!-- CABECERA Y MENÚ HAMBURGUESA -->
     <header>
-        <div class="logo">PORTAL <span>GOLD</span></div>
-        <p>Directorio Exclusivo de Locales, Servicios y Modelos</p>
+        <div class="header-container">
+            <div class="logo">PORTAL <span>DULCE</span></div>
+            
+            <!-- Botón del Menú Hamburguesa para Móviles -->
+            <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()">
+                &#9776;
+            </button>
+        </div>
+
+        <!-- Menú Hamburguesa Desplegable con los 6 servicios -->
+        <nav class="nav-menu" id="navMenu">
+            <ul>
+                <li><a href="#" onclick="filtrarServicio('Packs')">1. Packs</a></li>
+                <li><a href="#" onclick="filtrarServicio('Videos')">2. Videos</a></li>
+                <li><a href="#" onclick="filtrarServicio('Citas')">3. Citas y conexiones sociales</a></li>
+                <li><a href="#" onclick="filtrarServicio('Locales')">4. Locales</a></li>
+                <li><a href="#" onclick="filtrarServicio('Compañia')">5. Compañía</a></li>
+                <li><a href="#" onclick="filtrarServicio('Relajacion')">6. Relajación</a></li>
+            </ul>
+        </nav>
+
+        <!-- Pestañas de Servicios en el Banner Principal -->
+        <div class="banner-tabs">
+            <button class="tab-btn active" onclick="filtrarServicio('Todos')">Todos</button>
+            <button class="tab-btn" onclick="filtrarServicio('Packs')">Packs</button>
+            <button class="tab-btn" onclick="filtrarServicio('Videos')">Videos</button>
+            <button class="tab-btn" onclick="filtrarServicio('Citas')">Citas y conexiones</button>
+            <button class="tab-btn" onclick="filtrarServicio('Locales')">Locales</button>
+            <button class="tab-btn" onclick="filtrarServicio('Compañia')">Compañía</button>
+            <button class="tab-btn" onclick="filtrarServicio('Relajacion')">Relajación</button>
+        </div>
     </header>
 
     <!-- CONTENEDOR PRINCIPAL -->
@@ -20,19 +49,20 @@
         
         <!-- NAVEGACIÓN DE ROLES (Simulación de Acceso) -->
         <section class="role-selector">
-            <h2>Selecciona tu Vista de Rol</h2>
+            <h2>Selecciona tu Vista de Rol / Panel de Gestión</h2>
             <div class="button-group">
                 <button onclick="switchRole('admin')" class="btn-gold">Vista Admin</button>
                 <button onclick="switchRole('cliente')" class="btn-gold">Vista Cliente</button>
-                <button onclick="switchRole('local')" class="btn-gold">Vista Local (Masajes / Cafés)</button>
-                <button onclick="switchRole('modelo')" class="btn-gold">Vista Modelo (Galería Exclusiva)</button>
+                <button onclick="switchRole('local')" class="btn-gold">Vista Local</button>
+                <button onclick="switchRole('modelo')" class="btn-gold">Vista Modelo</button>
+                <button onclick="switchRole('vitrina')" class="btn-gold" style="background: #2ecc71; color: #fff;">Ver Banners Públicos</button>
             </div>
         </section>
 
         <!-- PANEL 1: ADMIN -->
         <div id="admin" class="role-section">
             <h2>Panel de Administración General</h2>
-            <p>Control de membresías, activación de usuarios, locales y modelos, además de moderación global de banners.</p>
+            <p>Control de membresías, activación de usuarios, locales y modelos.</p>
             <div class="card">
                 <h3>Gestión de Cuentas, Modelos y Locales</h3>
                 <table class="admin-table">
@@ -43,7 +73,7 @@
                         <th>Acción</th>
                     </tr>
                     <tr>
-                        <td>Spa & Masajes Relax</td>
+                        <td>Spa & Masajes Dulce Relax</td>
                         <td>Local</td>
                         <td><span class="status active">Activo</span></td>
                         <td><button class="btn-action">Desactivar</button></td>
@@ -54,12 +84,6 @@
                         <td><span class="status active">Activo</span></td>
                         <td><button class="btn-action">Desactivar</button></td>
                     </tr>
-                    <tr>
-                        <td>Café Tentación</td>
-                        <td>Local</td>
-                        <td><span class="status inactive">Pendiente Pago</span></td>
-                        <td><button class="btn-action">Activar</button></td>
-                    </tr>
                 </table>
             </div>
         </div>
@@ -67,71 +91,110 @@
         <!-- PANEL 2: CLIENTE -->
         <div id="cliente" class="role-section">
             <h2>Panel de Cliente (Banner Personal)</h2>
-            <p>Sube tu contenido personalizado (Fotos, Videos, Llamada directa y WhatsApp).</p>
+            <p>Sube tu contenido personalizado para publicarlo en la vitrina.</p>
             <div class="card">
                 <div class="form-group">
-                    <label>Subir Multimedia (Fotos / Videos):</label>
-                    <input type="file" multiple accept="image/*,video/*">
+                    <label>Tu Nombre / Título:</label>
+                    <input type="text" id="clienteNombre" placeholder="Ej: Anuncio Personal VIP">
                 </div>
                 <div class="form-group">
-                    <label>Enlace de WhatsApp:</label>
-                    <input type="text" placeholder="Ej: +56912345678">
+                    <label>Categoría de Servicio:</label>
+                    <select id="clienteServicio">
+                        <option value="Packs">1. Packs</option>
+                        <option value="Videos">2. Videos</option>
+                        <option value="Citas">3. Citas y conexiones sociales</option>
+                        <option value="Locales">4. Locales</option>
+                        <option value="Compañia">5. Compañía</option>
+                        <option value="Relajacion">6. Relajación</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Botón de Llamada Directa:</label>
-                    <input type="text" placeholder="Número telefónico de contacto">
+                    <label>Subir Foto o Imagen de Perfil:</label>
+                    <input type="file" id="clienteFoto" accept="image/*">
                 </div>
-                <button class="btn-gold" onclick="guardarCliente()">Guardar y Publicar Banner</button>
+                <div class="form-group">
+                    <label>Enlace de WhatsApp (con código de país, ej: 569...):</label>
+                    <input type="text" id="clienteWsp" placeholder="Ej: 56912345678">
+                </div>
+                <button class="btn-gold" onclick="guardarCliente()">Publicar Banner Cliente</button>
             </div>
         </div>
 
         <!-- PANEL 3: LOCAL -->
         <div id="local" class="role-section">
             <h2>Panel de Local / Establecimiento</h2>
-            <p>Administra tus publicaciones y ofrece servicios en galerías categorizadas.</p>
+            <p>Administra tus publicaciones y servicios para la vitrina.</p>
             <div class="card">
                 <div class="form-group">
-                    <label>Seleccionar Categoría de Servicio:</label>
-                    <select>
-                        <option>Masajes Profesionales</option>
-                        <option>Cafés con Pierna</option>
-                        <option>Atención VIP / Exclusiva</option>
+                    <label>Nombre del Local:</label>
+                    <input type="text" id="localNombre" placeholder="Ej: Spa Masajes Dulce">
+                </div>
+                <div class="form-group">
+                    <label>Categoría de Servicio Principal:</label>
+                    <select id="localServicio">
+                        <option value="Locales">4. Locales</option>
+                        <option value="Relajacion">6. Relajación</option>
+                        <option value="Citas">3. Citas y conexiones sociales</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Gestión de Publicación Propia:</label>
-                    <textarea rows="4" placeholder="Describe los servicios, tarifas y horarios de tu local..."></textarea>
+                    <label>Descripción y Tarifas:</label>
+                    <textarea id="localDesc" rows="3" placeholder="Describe los servicios..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Galería de Imágenes del Local:</label>
-                    <input type="file" multiple accept="image/*">
+                    <label>Subir Imagen del Local:</label>
+                    <input type="file" id="localFoto" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Número de WhatsApp del Local:</label>
+                    <input type="text" id="localWsp" placeholder="Ej: 56987654321">
                 </div>
                 <button class="btn-gold" onclick="guardarLocal()">Actualizar Publicación del Local</button>
             </div>
         </div>
 
-        <!-- PANEL 4: MODELO (NUEVO) -->
+        <!-- PANEL 4: MODELO -->
         <div id="modelo" class="role-section">
             <h2>Panel de Modelo (Galería y Banner Personal)</h2>
-            <p>Sube tus fotos, videos y configura tu perfil individual al estilo de portales especializados.</p>
+            <p>Sube tus fotos y configura tu perfil individual de servicio.</p>
             <div class="card">
                 <div class="form-group">
                     <label>Nombre / Alias Artístico:</label>
-                    <input type="text" placeholder="Ej: Camila Rius">
+                    <input type="text" id="modeloNombre" placeholder="Ej: Camila Rius">
                 </div>
                 <div class="form-group">
-                    <label>Subir Fotos y Videos para la Galería:</label>
-                    <input type="file" multiple accept="image/*,video/*">
+                    <label>Seleccionar Servicio Principal:</label>
+                    <select id="modeloServicio">
+                        <option value="Compañia">5. Compañía</option>
+                        <option value="Packs">1. Packs</option>
+                        <option value="Videos">2. Videos</option>
+                        <option value="Citas">3. Citas y conexiones sociales</option>
+                        <option value="Relajacion">6. Relajación</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subir Foto Principal / Galería:</label>
+                    <input type="file" id="modeloFoto" accept="image/*">
                 </div>
                 <div class="form-group">
                     <label>Tarifas y Descripción del Servicio:</label>
-                    <textarea rows="3" placeholder="Ej: Atención personalizada, masajes de relajación, disponibilidad horaria..."></textarea>
+                    <textarea id="modeloDesc" rows="3" placeholder="Ej: Atención personalizada, masajes de relajación..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Número de WhatsApp (Contacto Directo):</label>
-                    <input type="text" placeholder="Ej: +56987654321">
+                    <input type="text" id="modeloWsp" placeholder="Ej: 56987654321">
                 </div>
-                <button class="btn-gold" onclick="guardarModelo()">Publicar / Actualizar Banner de Modelo</button>
+                <button class="btn-gold" onclick="guardarModelo()">Publicar Banner de Modelo</button>
+            </div>
+        </div>
+
+        <!-- PANEL 5: VITRINA PÚBLICA DE BANNERS -->
+        <div id="vitrina" class="role-section active">
+            <h2>Vitrina de Banners Activos (Portal Dulce)</h2>
+            <p>Explora perfiles filtrando por pestañas superiores o usando el menú hamburguesa.</p>
+            <div id="contenedorBanners" class="banners-grid">
+                <!-- Los banners se insertarán aquí automáticamente por JavaScript -->
+                <p style="color: var(--text-gray);">Aún no hay banners publicados. Rellena un formulario de Modelo, Local o Cliente para verlos aquí.</p>
             </div>
         </div>
 
@@ -139,7 +202,7 @@
 
     <!-- PIE DE PÁGINA -->
     <footer>
-        <p>&copy; 2026 Portal Gold. Todos los derechos reservados.</p>
+        <p>&copy; 2026 Portal Dulce. Todos los derechos reservados.</p>
     </footer>
 
     <!-- Enlace al archivo de lógica JavaScript -->
