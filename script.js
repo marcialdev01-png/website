@@ -18,20 +18,7 @@ function toggleMenu() {
     menu.classList.toggle('active');
 }
 
-// Guardar Banner de Cliente
-function guardarCliente() {
-    const nombre = document.getElementById('clienteNombre').value || 'Cliente VIP';
-    const servicio = document.getElementById('clienteServicio').value;
-    const wsp = document.getElementById('clienteWsp').value;
-    const fotoInput = document.getElementById('clienteFoto');
-    
-    let imagenUrl = 'https://via.placeholder.com/300x200?text=Portal+Dulce';
-    if (fotoInput.files && fotoInput.files[0]) {
-        imagenUrl = URL.createObjectURL(fotoInput.files[0]);
-    }
-
-    agregarBanner(nombre, servicio, 'Servicio personal verificado', wsp, imagenUrl);
-}
+//Borra Banner de Cliente
 
 // Guardar Banner de Local
 function guardarLocal() {
@@ -75,10 +62,12 @@ function agregarBanner(nombre, servicio, desc, wsp, imagen) {
 }
 
 // Filtrar banners por categoría de servicio
-function filtrarServicio(categoria) {
+function filtrarServicio(categoria, boton = null) {
     // Cambiar estado activo de pestañas visuales
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event && event.target && event.target.classList.add('active');
+    if (boton) {
+        boton.classList.add('active');
+    }
 
     // Cerrar menú hamburguesa si está abierto en móvil
     document.getElementById('navMenu').classList.remove('active');
