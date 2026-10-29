@@ -57,8 +57,7 @@ header {
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
-   /* display: none; /* Oculto en pantallas grandes por defecto */
-   display: block; /* Mostrar en pantallas grandes para pruebas */
+    display: block;
 }
 
 /* Menú Desplegable Hamburguesa */
@@ -71,7 +70,6 @@ header {
     border-radius: 6px;
     margin-top: 10px;
     padding: 10px 20px;
-    display: block; /* Mostrar el menú por defecto para pruebas */
 }
 
 .nav-menu.active {
