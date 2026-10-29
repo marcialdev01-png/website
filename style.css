@@ -73,7 +73,7 @@ header {
 }
 
 .nav-menu.active {
-    display: block;
+    display: block !important;
 }
 
 .nav-menu ul {
