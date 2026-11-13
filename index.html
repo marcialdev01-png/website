@@ -3,209 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Dulces&Cariñosas | Directorio Exclusivo de Servicios y Locales</title>
-    <!-- Enlace a la hoja de estilos -->
+    <title>Portal Dulces &amp; Cariñosas | Directorio de Servicios y Locales</title>
+    <meta name="description" content="Directorio para mayores de 18 años que conecta modelos y locales con personas que buscan servicios en Chile.">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#0a0a0a">
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
 
-    <!-- CABECERA Y MENÚ HAMBURGUESA -->
+    <!-- VALIDACIÓN DE MAYORÍA DE EDAD (declaración por fecha de nacimiento; no es verificación de identidad) -->
+    <div id="ageGate" class="age-gate" role="dialog" aria-modal="true" aria-labelledby="ageTitle" hidden>
+        <form class="age-gate-box" id="ageForm" novalidate>
+            <h2 id="ageTitle">Solo para mayores de 18 años</h2>
+            <p>Este sitio contiene publicidad de servicios para adultos. Ingresa tu fecha de nacimiento para continuar.</p>
+            <div class="form-group">
+                <label for="ageFecha">Fecha de nacimiento</label>
+                <input type="date" id="ageFecha" required>
+            </div>
+            <p class="form-msg" id="ageMsg" role="alert"></p>
+            <div class="button-group">
+                <button type="submit" class="btn-gold">Ingresar</button>
+                <a class="btn-outline" href="https://www.google.com" rel="noopener noreferrer">Salir</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- CABECERA -->
     <header>
         <div class="header-container">
-            <div class="logo">PORTAL <span>DULCES&CARIÑOSAS</span></div>
-            
-            <!-- Botón del Menú Hamburguesa para Móviles -->
-            <button class="hamburger" id="navMenu" onclick="toggleMenu()">
-                &#9776;
-            </button>
+            <div class="logo">PORTAL <span>DULCES &amp; CARIÑOSAS</span></div>
+
+            <!-- Arriba a la derecha: acceso a cuenta + menú -->
+            <div class="header-actions">
+                <button type="button" class="btn-outline btn-login" id="btnLogin" aria-haspopup="dialog">Ingresar</button>
+                <button type="button" class="hamburger" id="menuToggle"
+                        aria-label="Abrir menú de servicios" aria-controls="navMenu" aria-expanded="false">&#9776;</button>
+            </div>
         </div>
 
-        <!-- Menú Hamburguesa Desplegable con los 6 servicios -->
-        <nav class="nav-menu" id="navMenu">
+        <nav class="nav-menu" id="navMenu" aria-label="Servicios">
             <ul>
-                <li><a href="#" onclick="filtrarServicio('Packs')">1. Packs</a></li>
-                <li><a href="#" onclick="filtrarServicio('Videos')">2. Videos</a></li>
-                <li><a href="#" onclick="filtrarServicio('Citas')">3. Citas y conexiones sociales</a></li>
-                <li><a href="#" onclick="filtrarServicio('Locales')">4. Locales</a></li>
-                <li><a href="#" onclick="filtrarServicio('Compañia')">5. Compañía</a></li>
-                <li><a href="#" onclick="filtrarServicio('Relajacion')">6. Relajación</a></li>
+                <li><a href="#vitrina" data-categoria="Packs">1. Packs</a></li>
+                <li><a href="#vitrina" data-categoria="Videos">2. Videos</a></li>
+                <li><a href="#vitrina" data-categoria="Citas">3. Citas y conexiones sociales</a></li>
+                <li><a href="#vitrina" data-categoria="Locales">4. Locales</a></li>
+                <li><a href="#vitrina" data-categoria="Compañia">5. Compañía</a></li>
+                <li><a href="#vitrina" data-categoria="Relajacion">6. Relajación</a></li>
             </ul>
         </nav>
 
-        <!-- Pestañas de Servicios en el Banner Principal -->
-        <div class="banner-tabs">
-            <button class="tab-btn active" onclick="filtrarServicio('Todos')">Todos</button>
-            <button class="tab-btn" onclick="filtrarServicio('Packs')">Packs</button>
-            <button class="tab-btn" onclick="filtrarServicio('Videos')">Videos</button>
-            <button class="tab-btn" onclick="filtrarServicio('Citas')">Citas y conexiones</button>
-            <button class="tab-btn" onclick="filtrarServicio('Locales')">Locales</button>
-            <button class="tab-btn" onclick="filtrarServicio('Compañia')">Compañía</button>
-            <button class="tab-btn" onclick="filtrarServicio('Relajacion')">Relajación</button>
+        <div class="banner-tabs" role="toolbar" aria-label="Filtrar por servicio">
+            <button type="button" class="tab-btn active" data-categoria="Todos">Todos</button>
+            <button type="button" class="tab-btn" data-categoria="Packs">Packs</button>
+            <button type="button" class="tab-btn" data-categoria="Videos">Videos</button>
+            <button type="button" class="tab-btn" data-categoria="Citas">Citas y conexiones</button>
+            <button type="button" class="tab-btn" data-categoria="Locales">Locales</button>
+            <button type="button" class="tab-btn" data-categoria="Compañia">Compañía</button>
+            <button type="button" class="tab-btn" data-categoria="Relajacion">Relajación</button>
         </div>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <main class="container">
-        
-        <!-- NAVEGACIÓN DE ROLES (Simulación de Acceso) -->
-        <section class="role-selector">
-            <h2>Selecciona tu Vista de Rol / Panel de Gestión</h2>
+
+        <div class="demo-notice" role="note">
+            <strong>Versión de demostración.</strong>
+            Las cuentas, suscripciones y publicaciones existen solo en tu navegador y se pierden al recargar.
+            El control real de permisos requiere un servidor (siguiente etapa).
+        </div>
+
+        <!-- Barra de sesión: solo aparece con una cuenta iniciada -->
+        <section class="role-selector session-bar" id="sesionBar" hidden>
+            <span id="sesionInfo"></span>
             <div class="button-group">
-                <button onclick="switchRole('admin')" class="btn-gold">Vista Admin</button>
-                <!--<button onclick="switchRole('cliente')" class="btn-gold">Vista Cliente</button>-->
-                <button onclick="switchRole('local')" class="btn-gold">Vista Local</button>
-                <button onclick="switchRole('modelo')" class="btn-gold">Vista Modelo</button>
-                <button onclick="switchRole('vitrina')" class="btn-gold" style="background: #2ecc71; color: #fff;">Ver Banners Públicos</button>
+                <button type="button" class="btn-gold" id="btnPanel">Abrir mi panel</button>
+                <button type="button" class="btn-outline" id="btnSalir">Cerrar sesión</button>
             </div>
         </section>
 
-        <!-- PANEL 1: ADMIN -->
-        <div id="admin" class="role-section">
-            <h2>Panel de Administración General</h2>
-            <p>Control de membresías, activación de usuarios, locales y modelos.</p>
-            <div class="card">
-                <h3>Gestión de Cuentas, Modelos y Locales</h3>
-                <table class="admin-table">
-                    <tr>
-                        <th>Nombre / Alias</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                    <tr>
-                        <td>Spa & Masajes Dulce Relax</td>
-                        <td>Local</td>
-                        <td><span class="status active">Activo</span></td>
-                        <td><button class="btn-action">Desactivar</button></td>
-                    </tr>
-                    <tr>
-                        <td>Sofía (Modelo VIP)</td>
-                        <td>Modelo</td>
-                        <td><span class="status active">Activo</span></td>
-                        <td><button class="btn-action">Desactivar</button></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+        <!-- PANEL ADMINISTRACIÓN -->
+        <div id="admin" class="role-section gestion-panel">
+            <h2>Administración de cuentas</h2>
+            <p>Habilita o deshabilita cuentas y confirma el pago o transferencia de la suscripción de modelos y locales.</p>
 
-        <!-- PANEL 2: CLIENTE -->
-        <!--<div id="cliente" class="role-section">
-            <h2>Panel de Cliente (Banner Personal)</h2>
-            <p>Sube tu contenido personalizado para publicarlo en la vitrina.</p>
-            <div class="card">
+            <form class="card" id="formCuenta" novalidate>
+                <h3>Crear cuenta</h3>
                 <div class="form-group">
-                    <label>Tu Nombre / Título:</label>
-                    <input type="text" id="clienteNombre" placeholder="Ej: Anuncio Personal VIP">
+                    <label for="cuentaNombre">Nombre de la cuenta:</label>
+                    <input type="text" id="cuentaNombre" maxlength="60" required>
                 </div>
                 <div class="form-group">
-                    <label>Categoría de Servicio:</label>
-                    <select id="clienteServicio">
-                        <option value="Packs">1. Packs</option>
-                        <option value="Videos">2. Videos</option>
-                        <option value="Citas">3. Citas y conexiones sociales</option>
-                        <option value="Locales">4. Locales</option>
-                        <option value="Compañia">5. Compañía</option>
-                        <option value="Relajacion">6. Relajación</option>
+                    <label for="cuentaRol">Tipo de cuenta:</label>
+                    <select id="cuentaRol">
+                        <option value="modelo">Modelo</option>
+                        <option value="local">Local</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Subir Foto o Imagen de Perfil:</label>
-                    <input type="file" id="clienteFoto" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label>Enlace de WhatsApp (con código de país, ej: 569...):</label>
-                    <input type="text" id="clienteWsp" placeholder="Ej: 56912345678">
-                </div>
-                <button class="btn-gold" onclick="guardarCliente()">Publicar Banner Cliente</button>
-            </div>
-        </div>-->
+                <p class="form-msg" id="msgCuenta" role="status" aria-live="polite"></p>
+                <button type="submit" class="btn-gold">Crear cuenta</button>
+            </form>
 
-        <!-- PANEL 3: LOCAL -->
-        <div id="local" class="role-section">
-            <h2>Panel de Local / Establecimiento</h2>
-            <p>Administra tus publicaciones y servicios para la vitrina.</p>
             <div class="card">
-                <div class="form-group">
-                    <label>Nombre del Local:</label>
-                    <input type="text" id="localNombre" placeholder="Ej: Spa Masajes Dulce">
+                <h3>Cuentas</h3>
+                <p class="form-msg" id="msgAdmin" role="status" aria-live="polite"></p>
+                <div class="table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Suscripción</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminLista"></tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label>Categoría de Servicio Principal:</label>
-                    <select id="localServicio">
-                        <option value="Locales">4. Locales</option>
-                        <option value="Relajacion">6. Relajación</option>
-                        <option value="Citas">3. Citas y conexiones sociales</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descripción y Tarifas:</label>
-                    <textarea id="localDesc" rows="3" placeholder="Describe los servicios..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Subir Imagen del Local:</label>
-                    <input type="file" id="localFoto" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label>Número de WhatsApp del Local:</label>
-                    <input type="text" id="localWsp" placeholder="Ej: 56987654321">
-                </div>
-                <button class="btn-gold" onclick="guardarLocal()">Actualizar Publicación del Local</button>
             </div>
         </div>
 
-        <!-- PANEL 4: MODELO -->
-        <div id="modelo" class="role-section">
-            <h2>Panel de Modelo (Galería y Banner Personal)</h2>
-            <p>Sube tus fotos y configura tu perfil individual de servicio.</p>
-            <div class="card">
-                <div class="form-group">
-                    <label>Nombre / Alias Artístico:</label>
-                    <input type="text" id="modeloNombre" placeholder="Ej: Camila Rius">
-                </div>
-                <div class="form-group">
-                    <label>Seleccionar Servicio Principal:</label>
-                    <select id="modeloServicio">
-                        <option value="Compañia">5. Compañía</option>
-                        <option value="Packs">1. Packs</option>
-                        <option value="Videos">2. Videos</option>
-                        <option value="Citas">3. Citas y conexiones sociales</option>
-                        <option value="Relajacion">6. Relajación</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Subir Foto Principal / Galería:</label>
-                    <input type="file" id="modeloFoto" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label>Tarifas y Descripción del Servicio:</label>
-                    <textarea id="modeloDesc" rows="3" placeholder="Ej: Atención personalizada, masajes de relajación..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Número de WhatsApp (Contacto Directo):</label>
-                    <input type="text" id="modeloWsp" placeholder="Ej: 56987654321">
-                </div>
-                <button class="btn-gold" onclick="guardarModelo()">Publicar Banner de Modelo</button>
+        <!-- PANEL MODELO -->
+        <div id="modelo" class="role-section gestion-panel">
+            <h2>Mi perfil de modelo</h2>
+            <p>Sube tus fotos, videos y servicios. Todo se muestra en un formato estándar.</p>
+
+            <div class="lock-box" id="modeloBloqueo" hidden>
+                Tu cuenta aún no tiene la suscripción activa. Para publicar, realiza el pago o la transferencia
+                y espera la confirmación del administrador.
             </div>
+
+            <form class="card" id="formModelo" novalidate hidden>
+                <div class="form-group">
+                    <label for="modeloNombre">Nombre / alias artístico:</label>
+                    <input type="text" id="modeloNombre" maxlength="60" required>
+                </div>
+                <div class="form-group">
+                    <label for="modeloComuna">Comuna:</label>
+                    <input type="text" id="modeloComuna" maxlength="40">
+                </div>
+                <div class="form-group">
+                    <label for="modeloServicio">Servicio principal:</label>
+                    <select id="modeloServicio"></select>
+                </div>
+                <div class="form-group">
+                    <label for="modeloDesc">Descripción:</label>
+                    <textarea id="modeloDesc" rows="3" maxlength="400" required></textarea>
+                </div>
+
+                <fieldset class="form-group">
+                    <legend>Servicios y valores (máx. 10)</legend>
+                    <div class="inline-fields">
+                        <input type="text" id="modeloServNombre" maxlength="50" placeholder="Servicio" aria-label="Nombre del servicio">
+                        <input type="number" id="modeloServPrecio" min="0" step="1" placeholder="Precio CLP" aria-label="Precio en pesos chilenos">
+                        <button type="button" class="btn-outline" id="modeloServAdd">Agregar</button>
+                    </div>
+                    <ul class="svc-list" id="modeloServLista"></ul>
+                </fieldset>
+
+                <fieldset class="form-group">
+                    <legend>Fotos (máx. 6)</legend>
+                    <p class="muted">Se recortan y optimizan automáticamente a 720 × 960 px (formato vertical 3:4).</p>
+                    <input type="file" id="modeloFoto" accept="image/jpeg,image/png,image/webp" multiple aria-label="Subir fotos">
+                    <div class="thumbs" id="modeloFotos"></div>
+                </fieldset>
+
+                <fieldset class="form-group">
+                    <legend>Videos (máx. 2)</legend>
+                    <p class="muted">MP4 o WebM, hasta 25 MB. Se muestran en el mismo marco vertical 3:4.</p>
+                    <input type="file" id="modeloVideo" accept="video/mp4,video/webm" aria-label="Subir video">
+                    <div class="thumbs" id="modeloVideos"></div>
+                </fieldset>
+
+                <div class="form-group">
+                    <label for="modeloWsp">WhatsApp de contacto (ej: 987654321 o 56987654321):</label>
+                    <input type="tel" id="modeloWsp" inputmode="numeric" required>
+                </div>
+                <div class="form-group">
+                    <label class="check-label">
+                        <input type="checkbox" id="modeloConsent">
+                        Declaro ser mayor de 18 años, titular de las fotografías y videos, y autorizo su publicación.
+                    </label>
+                </div>
+                <p class="form-msg" id="msgModelo" role="status" aria-live="polite"></p>
+                <button type="submit" class="btn-gold">Guardar y publicar</button>
+            </form>
         </div>
 
-        <!-- PANEL 5: VITRINA PÚBLICA DE BANNERS -->
-        <div id="vitrina" class="role-section active">
-            <h2>Vitrina de Banners Activos (Portal Dulce%Cariñosas)</h2>
-            <p>Explora perfiles filtrando por pestañas superiores o usando el menú hamburguesa.</p>
-            <div id="contenedorBanners" class="banners-grid">
-                <!-- Los banners se insertarán aquí automáticamente por JavaScript -->
-                <p style="color: var(--text-gray);">Aún no hay banners publicados. Rellena un formulario de Modelo, Local o Cliente para verlos aquí.</p>
+        <!-- PANEL LOCAL -->
+        <div id="local" class="role-section gestion-panel">
+            <h2>Mi anuncio de local</h2>
+            <p>Promociona tu local, tus valores y tus servicios. Los locales publican anuncios, no fotografías.</p>
+
+            <div class="lock-box" id="localBloqueo" hidden>
+                Tu cuenta aún no tiene la suscripción activa. Para publicar, realiza el pago o la transferencia
+                y espera la confirmación del administrador.
             </div>
+
+            <form class="card" id="formLocal" novalidate hidden>
+                <div class="form-group">
+                    <label for="localNombre">Nombre del local:</label>
+                    <input type="text" id="localNombre" maxlength="60" required>
+                </div>
+                <div class="form-group">
+                    <label for="localComuna">Comuna:</label>
+                    <input type="text" id="localComuna" maxlength="40">
+                </div>
+                <div class="form-group">
+                    <label for="localServicio">Categoría principal:</label>
+                    <select id="localServicio"></select>
+                </div>
+                <div class="form-group">
+                    <label for="localDesc">Descripción del local:</label>
+                    <textarea id="localDesc" rows="3" maxlength="400" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="localPromo">Promoción vigente (opcional):</label>
+                    <input type="text" id="localPromo" maxlength="120">
+                </div>
+
+                <fieldset class="form-group">
+                    <legend>Servicios y valores (máx. 10)</legend>
+                    <div class="inline-fields">
+                        <input type="text" id="localServNombre" maxlength="50" placeholder="Servicio" aria-label="Nombre del servicio">
+                        <input type="number" id="localServPrecio" min="0" step="1" placeholder="Precio CLP" aria-label="Precio en pesos chilenos">
+                        <button type="button" class="btn-outline" id="localServAdd">Agregar</button>
+                    </div>
+                    <ul class="svc-list" id="localServLista"></ul>
+                </fieldset>
+
+                <div class="form-group">
+                    <label for="localWsp">WhatsApp del local (ej: 987654321 o 56987654321):</label>
+                    <input type="tel" id="localWsp" inputmode="numeric" required>
+                </div>
+                <p class="form-msg" id="msgLocal" role="status" aria-live="polite"></p>
+                <button type="submit" class="btn-gold">Guardar y publicar</button>
+            </form>
         </div>
+
+        <!-- MODO ESTÁNDAR: la vitrina se ve siempre -->
+        <section id="vitrina" class="role-section vitrina active">
+            <h2 id="vitrinaTitulo">Publicaciones activas</h2>
+            <p>Explora modelos y locales con las pestañas superiores o el menú.</p>
+            <div id="contenedorBanners" class="banners-grid" aria-live="polite"></div>
+        </section>
 
     </main>
 
-    <!-- PIE DE PÁGINA -->
+    <!-- LOGIN -->
+    <dialog id="loginDialog" aria-labelledby="loginTitulo">
+        <button type="button" class="btn-outline dialog-close" id="loginCerrar" aria-label="Cerrar">&#10005;</button>
+        <form id="formLogin" novalidate>
+            <h2 class="perfil-titulo" id="loginTitulo">Ingresar a mi cuenta</h2>
+            <p class="muted">Demostración: por ahora el acceso no pide clave. La autenticación real llega con el backend.</p>
+
+            <fieldset class="form-group">
+                <legend>Tipo de perfil</legend>
+                <div class="segmented">
+                    <label class="seg"><input type="radio" name="loginRol" value="admin" checked> Administrador</label>
+                    <label class="seg"><input type="radio" name="loginRol" value="modelo"> Modelo</label>
+                    <label class="seg"><input type="radio" name="loginRol" value="local"> Local</label>
+                </div>
+            </fieldset>
+
+            <div class="form-group">
+                <label for="loginCuenta">Cuenta:</label>
+                <select id="loginCuenta"></select>
+            </div>
+
+            <p class="form-msg" id="msgLogin" role="alert"></p>
+            <button type="submit" class="btn-gold">Entrar</button>
+        </form>
+    </dialog>
+
+    <!-- FICHA COMPLETA -->
+    <dialog id="perfilDialog" aria-label="Ficha completa">
+        <button type="button" class="btn-outline dialog-close" id="perfilCerrar" aria-label="Cerrar ficha">&#10005;</button>
+        <div id="perfilContenido"></div>
+    </dialog>
+
     <footer>
-        <p>&copy; 2026 Portal Dulces&Cariñosas. Todos los derechos reservados.</p>
+        <p>&copy; 2026 Portal Dulces &amp; Cariñosas. Solo para mayores de 18 años.</p>
+        <p class="muted">Términos, privacidad y canal de denuncias: pendientes de redacción antes del lanzamiento.</p>
     </footer>
 
-    <!-- Enlace al archivo de lógica JavaScript -->
-    <script src="script.js"></script>
 </body>
 </html>
