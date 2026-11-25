@@ -114,6 +114,14 @@
                         <option value="local">Local</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="cuentaRegion">Región:</label>
+                    <select id="cuentaRegion" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="cuentaComuna">Comuna:</label>
+                    <select id="cuentaComuna" required disabled></select>
+                </div>
                 <p class="form-msg" id="msgCuenta" role="status" aria-live="polite"></p>
                 <button type="submit" class="btn-gold">Crear cuenta</button>
             </form>
@@ -127,6 +135,7 @@
                             <tr>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Tipo</th>
+                                <th scope="col">Ubicación</th>
                                 <th scope="col">Estado</th>
                                 <th scope="col">Suscripción</th>
                                 <th scope="col">Acciones</th>

@@ -373,15 +373,21 @@ function crearCuenta(evento) {
     const rol = $('cuentaRol').value;
     if (!nombre) return mensaje('msgCuenta', 'Ingresa un nombre.', true);
     if (!['modelo', 'local'].includes(rol)) return mensaje('msgCuenta', 'Tipo de cuenta no válido.', true);
+    const region = $('cuentaRegion').value;
+    const comuna = $('cuentaComuna').value;
+    if (!ubicacionValida(region, comuna)) return mensaje('msgCuenta', 'Selecciona una región y una comuna de la lista.', true);
 
     estado.cuentas.push({
         id: estado.siguienteCuenta++,
         nombre,
         rol,
+        region,
+        comuna,
         habilitada: true,
         suscripcion: false
     });
     evento.currentTarget.reset();
+    poblarComunas($('cuentaComuna'), '', 'Selecciona una comuna');
     mensaje('msgCuenta', 'Cuenta creada.', false);
     renderAdmin();
 }
@@ -440,6 +446,7 @@ function renderAdmin() {
         tbody.appendChild(el('tr', {},
             el('td', { text: c.nombre }),
             el('td', { text: ROLES[c.rol] }),
+            el('td', { text: c.comuna ? c.comuna + ', ' + c.region : '—' }),
             el('td', {}, etiquetaEstado),
             el('td', { text: textoSub }),
             el('td', {}, acciones)
@@ -486,6 +493,11 @@ function prepararPanel(rol) {
             borrador.fotos = [...pub.fotos];
             if (rol === 'local') $('localPromo').value = pub.promo || '';
             if (rol === 'modelo') borrador.videos = pub.videos.map(v => ({ ...v }));
+        } else if (ubicacionValida(cuenta.region, cuenta.comuna)) {
+            // Primera publicación: parte con la ubicación con que se registró la cuenta
+            $(rol + 'Region').value = cuenta.region;
+            poblarComunas($(rol + 'Comuna'), cuenta.region, 'Selecciona una comuna');
+            $(rol + 'Comuna').value = cuenta.comuna;
         }
         borrador.cargado = true;
     }
@@ -841,6 +853,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     poblarRegiones($('filtroRegion'), 'Todas las regiones');
     poblarComunas($('filtroComuna'), '', 'Todas las comunas');
+    poblarRegiones($('cuentaRegion'), 'Selecciona una región');
+    poblarComunas($('cuentaComuna'), '', 'Selecciona una comuna');
+    $('cuentaRegion').addEventListener('change', () => {
+        poblarComunas($('cuentaComuna'), $('cuentaRegion').value, 'Selecciona una comuna');
+    });
     ['modelo', 'local'].forEach(rol => {
         poblarRegiones($(rol + 'Region'), 'Selecciona una región');
         poblarComunas($(rol + 'Comuna'), '', 'Selecciona una comuna');
