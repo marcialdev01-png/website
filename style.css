@@ -767,3 +767,51 @@ footer p {
         transform: none;
     }
 }
+
+/* ==========================================
+   FILTRO DE UBICACIÓN (arriba a la izquierda)
+   ========================================== */
+.geo-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 1100px;
+    margin: 0 auto 12px;
+}
+
+.geo-titulo {
+    color: var(--text-gold);
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.geo-campo {
+    flex: 0 1 260px;
+    min-width: 150px;
+}
+
+.geo-campo select {
+    padding: 8px 10px;
+    font-size: 14px;
+}
+
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .geo-campo {
+        flex: 1 1 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .geo-campo {
+        flex: 1 1 100%;
+    }
+}

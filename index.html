@@ -8,6 +8,7 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" content="#0a0a0a">
     <link rel="stylesheet" href="style.css">
+    <script src="comunas.js" defer></script>
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -31,6 +32,20 @@
 
     <!-- CABECERA -->
     <header>
+        <!-- FILTRO DE UBICACIÓN: arriba a la izquierda -->
+        <div class="geo-bar" role="group" aria-label="Filtrar por ubicación">
+            <span class="geo-titulo">Ubicación</span>
+            <div class="geo-campo">
+                <label for="filtroRegion" class="sr-only">Región</label>
+                <select id="filtroRegion"></select>
+            </div>
+            <div class="geo-campo">
+                <label for="filtroComuna" class="sr-only">Comuna</label>
+                <select id="filtroComuna" disabled></select>
+            </div>
+            <button type="button" class="btn-outline" id="filtroLimpiar" hidden>Limpiar</button>
+        </div>
+
         <div class="header-container">
             <div class="logo">PORTAL <span>DULCES &amp; CARIÑOSAS</span></div>
 
@@ -99,6 +114,14 @@
                         <option value="local">Local</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="cuentaRegion">Región:</label>
+                    <select id="cuentaRegion" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="cuentaComuna">Comuna:</label>
+                    <select id="cuentaComuna" required disabled></select>
+                </div>
                 <p class="form-msg" id="msgCuenta" role="status" aria-live="polite"></p>
                 <button type="submit" class="btn-gold">Crear cuenta</button>
             </form>
@@ -112,6 +135,7 @@
                             <tr>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Tipo</th>
+                                <th scope="col">Ubicación</th>
                                 <th scope="col">Estado</th>
                                 <th scope="col">Suscripción</th>
                                 <th scope="col">Acciones</th>
@@ -139,8 +163,12 @@
                     <input type="text" id="modeloNombre" maxlength="60" required>
                 </div>
                 <div class="form-group">
+                    <label for="modeloRegion">Región:</label>
+                    <select id="modeloRegion" required></select>
+                </div>
+                <div class="form-group">
                     <label for="modeloComuna">Comuna:</label>
-                    <input type="text" id="modeloComuna" maxlength="40">
+                    <select id="modeloComuna" required disabled></select>
                 </div>
                 <div class="form-group">
                     <label for="modeloServicio">Servicio principal:</label>
@@ -193,7 +221,7 @@
         <!-- PANEL LOCAL -->
         <div id="local" class="role-section gestion-panel">
             <h2>Mi anuncio de local</h2>
-            <p>Promociona tu local, tus valores y tus servicios. Los locales publican anuncios, no fotografías.</p>
+            <p>Promociona tu local con fotos, tus valores y tus servicios. Todo se muestra en el mismo formato estándar que el de las modelos.</p>
 
             <div class="lock-box" id="localBloqueo" hidden>
                 Tu cuenta aún no tiene la suscripción activa. Para publicar, realiza el pago o la transferencia
@@ -206,8 +234,12 @@
                     <input type="text" id="localNombre" maxlength="60" required>
                 </div>
                 <div class="form-group">
+                    <label for="localRegion">Región:</label>
+                    <select id="localRegion" required></select>
+                </div>
+                <div class="form-group">
                     <label for="localComuna">Comuna:</label>
-                    <input type="text" id="localComuna" maxlength="40">
+                    <select id="localComuna" required disabled></select>
                 </div>
                 <div class="form-group">
                     <label for="localServicio">Categoría principal:</label>
@@ -232,9 +264,22 @@
                     <ul class="svc-list" id="localServLista"></ul>
                 </fieldset>
 
+                <fieldset class="form-group">
+                    <legend>Fotos del local (máx. 6, opcional)</legend>
+                    <p class="muted">Se recortan y optimizan automáticamente a 720 × 960 px (formato vertical 3:4), igual que las fotos de modelos.</p>
+                    <input type="file" id="localFoto" accept="image/jpeg,image/png,image/webp" multiple aria-label="Subir fotos del local">
+                    <div class="thumbs" id="localFotos"></div>
+                </fieldset>
+
                 <div class="form-group">
                     <label for="localWsp">WhatsApp del local (ej: 987654321 o 56987654321):</label>
                     <input type="tel" id="localWsp" inputmode="numeric" required>
+                </div>
+                <div class="form-group">
+                    <label class="check-label">
+                        <input type="checkbox" id="localConsent">
+                        Si publico fotografías: declaro ser titular de ellas o contar con autorización, que las personas que aparecen son mayores de 18 años y consienten su publicación.
+                    </label>
                 </div>
                 <p class="form-msg" id="msgLocal" role="status" aria-live="polite"></p>
                 <button type="submit" class="btn-gold">Guardar y publicar</button>
@@ -245,6 +290,7 @@
         <section id="vitrina" class="role-section vitrina active">
             <h2 id="vitrinaTitulo">Publicaciones activas</h2>
             <p>Explora modelos y locales con las pestañas superiores o el menú.</p>
+            <p class="muted" id="vitrinaResumen" role="status" aria-live="polite"></p>
             <div id="contenedorBanners" class="banners-grid" aria-live="polite"></div>
         </section>
 

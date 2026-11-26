@@ -44,6 +44,8 @@ const estado = {
     sesionId: null,
     panelAbierto: null,
     filtro: 'Todos',
+    filtroRegion: '',
+    filtroComuna: '',
     siguienteCuenta: 4,
     siguientePub: 1
 };
@@ -54,7 +56,7 @@ let borradores = nuevosBorradores();
 function nuevosBorradores() {
     return {
         modelo: { cargado: false, servicios: [], fotos: [], videos: [] },
-        local: { cargado: false, servicios: [] }
+        local: { cargado: false, servicios: [], fotos: [] }
     };
 }
 
@@ -99,6 +101,76 @@ function normalizarWhatsapp(valor) {
 function enlaceWhatsapp(pub) {
     const texto = 'Hola ' + pub.nombre + ', vi tu publicación en Portal Dulces & Cariñosas y me interesa información.';
     return 'https://wa.me/' + pub.wsp + '?text=' + encodeURIComponent(texto);
+}
+
+/* ---------- Ubicación: regiones y comunas de Chile (datos en comunas.js) ---------- */
+
+function regionPorNombre(nombre) {
+    return REGIONES_CHILE.find(r => r.nombre === nombre) || null;
+}
+
+// La comuna debe existir y pertenecer a la región indicada
+function ubicacionValida(region, comuna) {
+    const r = regionPorNombre(region);
+    return !!r && r.comunas.includes(comuna);
+}
+
+function poblarRegiones(select, textoVacio) {
+    select.replaceChildren(el('option', { text: textoVacio, attrs: { value: '' } }));
+    REGIONES_CHILE.forEach(r => {
+        select.appendChild(el('option', { text: r.nombre, attrs: { value: r.nombre } }));
+    });
+}
+
+function poblarComunas(select, region, textoVacio) {
+    select.replaceChildren(el('option', { text: textoVacio, attrs: { value: '' } }));
+    const r = regionPorNombre(region);
+    select.disabled = !r;
+    if (r) {
+        r.comunas.forEach(c => select.appendChild(el('option', { text: c, attrs: { value: c } })));
+    }
+}
+
+function coincideUbicacion(pub) {
+    if (estado.filtroRegion && pub.region !== estado.filtroRegion) return false;
+    if (estado.filtroComuna && pub.comuna !== estado.filtroComuna) return false;
+    return true;
+}
+
+function textoUbicacionFiltro() {
+    if (estado.filtroComuna) return estado.filtroComuna + ', ' + estado.filtroRegion;
+    return estado.filtroRegion;
+}
+
+function cambiarRegionFiltro() {
+    estado.filtroRegion = $('filtroRegion').value;
+    estado.filtroComuna = '';
+    poblarComunas($('filtroComuna'), estado.filtroRegion, 'Todas las comunas');
+    aplicarFiltroUbicacion();
+}
+
+function cambiarComunaFiltro() {
+    estado.filtroComuna = $('filtroComuna').value;
+    aplicarFiltroUbicacion();
+}
+
+function limpiarFiltroUbicacion() {
+    estado.filtroRegion = '';
+    estado.filtroComuna = '';
+    $('filtroRegion').value = '';
+    poblarComunas($('filtroComuna'), '', 'Todas las comunas');
+    aplicarFiltroUbicacion();
+}
+
+function aplicarFiltroUbicacion() {
+    $('filtroLimpiar').hidden = !estado.filtroRegion;
+    renderVitrina();
+    $('vitrina').scrollIntoView();
+}
+
+// Un formulario de publicación: al cambiar la región se recargan sus comunas
+function cambiarRegionFormulario(rol) {
+    poblarComunas($(rol + 'Comuna'), $(rol + 'Region').value, 'Selecciona una comuna');
 }
 
 /* ---------- Cuentas y permisos ---------- */
@@ -301,15 +373,21 @@ function crearCuenta(evento) {
     const rol = $('cuentaRol').value;
     if (!nombre) return mensaje('msgCuenta', 'Ingresa un nombre.', true);
     if (!['modelo', 'local'].includes(rol)) return mensaje('msgCuenta', 'Tipo de cuenta no válido.', true);
+    const region = $('cuentaRegion').value;
+    const comuna = $('cuentaComuna').value;
+    if (!ubicacionValida(region, comuna)) return mensaje('msgCuenta', 'Selecciona una región y una comuna de la lista.', true);
 
     estado.cuentas.push({
         id: estado.siguienteCuenta++,
         nombre,
         rol,
+        region,
+        comuna,
         habilitada: true,
         suscripcion: false
     });
     evento.currentTarget.reset();
+    poblarComunas($('cuentaComuna'), '', 'Selecciona una comuna');
     mensaje('msgCuenta', 'Cuenta creada.', false);
     renderAdmin();
 }
@@ -368,6 +446,7 @@ function renderAdmin() {
         tbody.appendChild(el('tr', {},
             el('td', { text: c.nombre }),
             el('td', { text: ROLES[c.rol] }),
+            el('td', { text: c.comuna ? c.comuna + ', ' + c.region : '—' }),
             el('td', {}, etiquetaEstado),
             el('td', { text: textoSub }),
             el('td', {}, acciones)
@@ -396,24 +475,34 @@ function prepararPanel(rol) {
 
     const borrador = borradores[rol];
     if (!borrador.cargado) {
+        // Parte de un formulario limpio para no arrastrar datos de otra cuenta
+        $(rol === 'modelo' ? 'formModelo' : 'formLocal').reset();
+        poblarComunas($(rol + 'Comuna'), '', 'Selecciona una comuna');
+
         const pub = pubDe(cuenta.id);
         if (pub) {
             $(rol + 'Nombre').value = pub.nombre;
+            $(rol + 'Region').value = pub.region;
+            poblarComunas($(rol + 'Comuna'), pub.region, 'Selecciona una comuna');
             $(rol + 'Comuna').value = pub.comuna;
             $(rol + 'Servicio').value = pub.categoria;
             $(rol + 'Desc').value = pub.desc;
             $(rol + 'Wsp').value = pub.wsp;
+            $(rol + 'Consent').checked = !!pub.consent;
             borrador.servicios = pub.servicios.map(s => ({ ...s }));
+            borrador.fotos = [...pub.fotos];
             if (rol === 'local') $('localPromo').value = pub.promo || '';
-            if (rol === 'modelo') {
-                borrador.fotos = [...pub.fotos];
-                borrador.videos = pub.videos.map(v => ({ ...v }));
-            }
+            if (rol === 'modelo') borrador.videos = pub.videos.map(v => ({ ...v }));
+        } else if (ubicacionValida(cuenta.region, cuenta.comuna)) {
+            // Primera publicación: parte con la ubicación con que se registró la cuenta
+            $(rol + 'Region').value = cuenta.region;
+            poblarComunas($(rol + 'Comuna'), cuenta.region, 'Selecciona una comuna');
+            $(rol + 'Comuna').value = cuenta.comuna;
         }
         borrador.cargado = true;
     }
     renderServicios(rol);
-    if (rol === 'modelo') renderMediosModelo();
+    renderMedios(rol);
 }
 
 function renderServicios(rol) {
@@ -486,34 +575,36 @@ function procesarFoto(archivo) {
     });
 }
 
-async function subirFotos(evento) {
+// Mismo procesamiento y límites para Modelo y Local
+async function subirFotos(rol, evento) {
     const input = evento.currentTarget;
     const archivos = Array.from(input.files);
     input.value = '';
-    if (!puedePublicar('modelo')) return;
+    if (!puedePublicar(rol)) return;
 
-    const fotos = borradores.modelo.fotos;
+    const msgId = rol === 'modelo' ? 'msgModelo' : 'msgLocal';
+    const fotos = borradores[rol].fotos;
     for (const archivo of archivos) {
         if (fotos.length >= MAX_FOTOS) {
-            mensaje('msgModelo', 'Máximo ' + MAX_FOTOS + ' fotos.', true);
+            mensaje(msgId, 'Máximo ' + MAX_FOTOS + ' fotos.', true);
             break;
         }
         if (!TIPOS_FOTO.includes(archivo.type)) {
-            mensaje('msgModelo', 'Las fotos deben ser JPG, PNG o WebP.', true);
+            mensaje(msgId, 'Las fotos deben ser JPG, PNG o WebP.', true);
             continue;
         }
         if (archivo.size > MAX_FOTO_BYTES) {
-            mensaje('msgModelo', 'Una foto supera los 10 MB.', true);
+            mensaje(msgId, 'Una foto supera los 10 MB.', true);
             continue;
         }
         try {
             fotos.push(await procesarFoto(archivo));
-            mensaje('msgModelo', '', false);
+            mensaje(msgId, '', false);
         } catch (e) {
-            mensaje('msgModelo', e.message, true);
+            mensaje(msgId, e.message, true);
         }
     }
-    renderMediosModelo();
+    renderMedios(rol);
 }
 
 function subirVideo(evento) {
@@ -529,16 +620,14 @@ function subirVideo(evento) {
 
     videos.push({ url: URL.createObjectURL(archivo), nombre: archivo.name });
     mensaje('msgModelo', '', false);
-    renderMediosModelo();
+    renderMedios('modelo');
 }
 
-function renderMediosModelo() {
-    const contFotos = $('modeloFotos');
-    const contVideos = $('modeloVideos');
+function renderMedios(rol) {
+    const contFotos = $(rol + 'Fotos');
     contFotos.replaceChildren();
-    contVideos.replaceChildren();
 
-    borradores.modelo.fotos.forEach((url, i) => {
+    borradores[rol].fotos.forEach((url, i) => {
         const marco = el('div', { class: 'media-frame' },
             el('img', { attrs: { src: url, alt: 'Foto ' + (i + 1) } }));
         contFotos.appendChild(el('div', { class: 'thumb' }, marco,
@@ -546,10 +635,14 @@ function renderMediosModelo() {
                 class: 'btn-outline',
                 text: 'Quitar',
                 attrs: { type: 'button', 'aria-label': 'Quitar foto ' + (i + 1) },
-                on: { click: () => { borradores.modelo.fotos.splice(i, 1); renderMediosModelo(); } }
+                on: { click: () => { borradores[rol].fotos.splice(i, 1); renderMedios(rol); } }
             })
         ));
     });
+
+    if (rol !== 'modelo') return;
+    const contVideos = $('modeloVideos');
+    contVideos.replaceChildren();
 
     borradores.modelo.videos.forEach((v, i) => {
         const marco = el('div', { class: 'media-frame' },
@@ -559,7 +652,7 @@ function renderMediosModelo() {
                 class: 'btn-outline',
                 text: 'Quitar',
                 attrs: { type: 'button', 'aria-label': 'Quitar video ' + (i + 1) },
-                on: { click: () => { borradores.modelo.videos.splice(i, 1); renderMediosModelo(); } }
+                on: { click: () => { borradores.modelo.videos.splice(i, 1); renderMedios('modelo'); } }
             })
         ));
     });
@@ -575,13 +668,15 @@ function guardarPublicacion(rol, evento) {
     }
 
     const nombre = $(rol + 'Nombre').value.trim();
-    const comuna = $(rol + 'Comuna').value.trim();
+    const region = $(rol + 'Region').value;
+    const comuna = $(rol + 'Comuna').value;
     const categoria = $(rol + 'Servicio').value;
     const desc = $(rol + 'Desc').value.trim();
     const wsp = normalizarWhatsapp($(rol + 'Wsp').value);
     const borrador = borradores[rol];
 
     if (!nombre) return mensaje(msgId, 'Ingresa un nombre.', true);
+    if (!ubicacionValida(region, comuna)) return mensaje(msgId, 'Selecciona una región y una comuna de la lista.', true);
     if (!desc) return mensaje(msgId, 'Ingresa una descripción.', true);
     if (!CATEGORIAS_POR_ROL[rol].includes(categoria)) return mensaje(msgId, 'Categoría no válida.', true);
     if (!wsp) return mensaje(msgId, 'Ingresa un celular chileno válido (ej: 987654321).', true);
@@ -590,6 +685,7 @@ function guardarPublicacion(rol, evento) {
         cuentaId: estado.sesionId,
         tipo: rol,
         nombre,
+        region,
         comuna,
         categoria,
         desc,
@@ -603,17 +699,27 @@ function guardarPublicacion(rol, evento) {
         if (!$('modeloConsent').checked) return mensaje(msgId, 'Debes aceptar la declaración para publicar.', true);
         datos.fotos = [...borrador.fotos];
         datos.videos = borrador.videos.map(v => ({ ...v }));
+        datos.consent = true;
     } else {
+        // Las fotos del local son opcionales; si hay, exigen la misma declaración
+        if (borrador.fotos.length > 0 && !$('localConsent').checked) {
+            return mensaje(msgId, 'Para publicar fotos debes aceptar la declaración.', true);
+        }
         datos.promo = $('localPromo').value.trim();
-        datos.fotos = [];
+        datos.fotos = [...borrador.fotos];
         datos.videos = [];
+        datos.consent = borrador.fotos.length > 0;
     }
 
     const existente = pubDe(estado.sesionId);
     if (existente) Object.assign(existente, datos);
     else estado.publicaciones.push({ id: estado.siguientePub++, ...datos });
 
-    mensaje(msgId, 'Publicación guardada. Ya aparece en la vitrina (esta sesión del navegador).', false);
+    let aviso = 'Publicación guardada. Ya aparece en la vitrina (esta sesión del navegador).';
+    if (!coincideUbicacion(datos)) {
+        aviso += ' Ojo: hoy el filtro de ubicación (' + textoUbicacionFiltro() + ') la oculta; usa "Limpiar" para verla.';
+    }
+    mensaje(msgId, aviso, false);
     renderVitrina();
 }
 
@@ -621,7 +727,7 @@ function guardarPublicacion(rol, evento) {
 
 function crearTarjeta(pub) {
     const marco = el('div', { class: 'media-frame' });
-    if (pub.tipo === 'modelo' && pub.fotos.length > 0) {
+    if (pub.fotos.length > 0) {
         marco.appendChild(el('img', {
             attrs: { src: pub.fotos[0], alt: 'Foto de ' + pub.nombre, loading: 'lazy' }
         }));
@@ -631,8 +737,7 @@ function crearTarjeta(pub) {
     }
     if (pub.tipo === 'local' && pub.promo) marco.appendChild(el('span', { class: 'badge-promo', text: 'PROMO' }));
 
-    const meta = [pub.tipo === 'modelo' ? 'Modelo' : 'Local'];
-    if (pub.comuna) meta.push(pub.comuna);
+    const meta = [pub.tipo === 'modelo' ? 'Modelo' : 'Local', pub.comuna];
 
     const cuerpo = el('div', { class: 'banner-body' },
         el('span', { class: 'badge-servicio', text: NOMBRES_SERVICIO[pub.categoria] }),
@@ -662,13 +767,27 @@ function renderVitrina() {
     contenedor.replaceChildren();
 
     const visibles = estado.publicaciones.filter(p =>
-        publicacionVisible(p) && (estado.filtro === 'Todos' || p.categoria === estado.filtro)
+        publicacionVisible(p) && coincideUbicacion(p) && (estado.filtro === 'Todos' || p.categoria === estado.filtro)
     );
 
+    const ubicacion = textoUbicacionFiltro();
+    const resumen = [];
+    if (estado.filtro !== 'Todos') resumen.push(NOMBRES_SERVICIO[estado.filtro]);
+    if (ubicacion) resumen.push(ubicacion);
+    $('vitrinaResumen').textContent = visibles.length + (visibles.length === 1 ? ' publicación' : ' publicaciones') +
+        (resumen.length ? ' · ' + resumen.join(' · ') : '');
+
     if (visibles.length === 0) {
-        const texto = estado.filtro === 'Todos'
-            ? 'Aún no hay publicaciones. Una modelo o un local con suscripción activa debe publicar para verlas aquí.'
-            : 'No hay publicaciones activas en "' + NOMBRES_SERVICIO[estado.filtro] + '".';
+        let texto;
+        if (ubicacion) {
+            texto = 'No hay publicaciones activas' +
+                (estado.filtro === 'Todos' ? '' : ' en "' + NOMBRES_SERVICIO[estado.filtro] + '"') +
+                ' en ' + ubicacion + '. Prueba con otra comuna o región, o usa "Limpiar".';
+        } else if (estado.filtro === 'Todos') {
+            texto = 'Aún no hay publicaciones. Una modelo o un local con suscripción activa debe publicar para verlas aquí.';
+        } else {
+            texto = 'No hay publicaciones activas en "' + NOMBRES_SERVICIO[estado.filtro] + '".';
+        }
         contenedor.appendChild(el('p', { class: 'muted', text: texto }));
         return;
     }
@@ -683,7 +802,7 @@ function abrirFicha(pub) {
         el('h2', { class: 'perfil-titulo', text: pub.nombre }),
         el('p', {
             class: 'banner-meta',
-            text: [NOMBRES_SERVICIO[pub.categoria], pub.comuna].filter(Boolean).join(' · ')
+            text: [NOMBRES_SERVICIO[pub.categoria], pub.comuna + ', ' + pub.region].join(' · ')
         }),
         el('p', { text: pub.desc })
     );
@@ -731,6 +850,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     poblarSelect('modeloServicio', CATEGORIAS_POR_ROL.modelo);
     poblarSelect('localServicio', CATEGORIAS_POR_ROL.local);
+
+    poblarRegiones($('filtroRegion'), 'Todas las regiones');
+    poblarComunas($('filtroComuna'), '', 'Todas las comunas');
+    poblarRegiones($('cuentaRegion'), 'Selecciona una región');
+    poblarComunas($('cuentaComuna'), '', 'Selecciona una comuna');
+    $('cuentaRegion').addEventListener('change', () => {
+        poblarComunas($('cuentaComuna'), $('cuentaRegion').value, 'Selecciona una comuna');
+    });
+    ['modelo', 'local'].forEach(rol => {
+        poblarRegiones($(rol + 'Region'), 'Selecciona una región');
+        poblarComunas($(rol + 'Comuna'), '', 'Selecciona una comuna');
+        $(rol + 'Region').addEventListener('change', () => cambiarRegionFormulario(rol));
+    });
+    $('filtroRegion').addEventListener('change', cambiarRegionFiltro);
+    $('filtroComuna').addEventListener('change', cambiarComunaFiltro);
+    $('filtroLimpiar').addEventListener('click', limpiarFiltroUbicacion);
     actualizarSesion();
 
     $('menuToggle').addEventListener('click', () => toggleMenu());
@@ -756,7 +891,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $('formLocal').addEventListener('submit', e => guardarPublicacion('local', e));
     $('modeloServAdd').addEventListener('click', () => agregarServicio('modelo'));
     $('localServAdd').addEventListener('click', () => agregarServicio('local'));
-    $('modeloFoto').addEventListener('change', subirFotos);
+    $('modeloFoto').addEventListener('change', e => subirFotos('modelo', e));
+    $('localFoto').addEventListener('change', e => subirFotos('local', e));
     $('modeloVideo').addEventListener('change', subirVideo);
 
     renderVitrina();
